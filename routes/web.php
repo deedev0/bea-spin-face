@@ -15,4 +15,4 @@ Route::get('/register', function () {
 
 Route::post('/spin/winner', [SpinController::class, 'winner']);
 
-Route::resource('/guest', GuestController::class);
+Route::resource('/guest', GuestController::class)->except(['update', 'destroy', 'show', 'edit']);

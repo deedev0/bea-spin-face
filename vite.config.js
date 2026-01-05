@@ -13,6 +13,17 @@ export default defineConfig({
         tailwindcss(),
     ],
     server: {
+        host: '0.0.0.0',
+        port: 5173,
+        strictPort: true,
+        origin: 'http://10.10.10.65:5173', // ⬅️ GANTI IP KAMU
+                cors: true,
+
+        hmr: {
+            host: '10.10.10.65',
+            protocol: 'ws',
+            port: 5173,
+        },
         watch: {
             ignored: ['**/storage/framework/views/**'],
         },

@@ -30,24 +30,24 @@ function Register() {
       <form onSubmit={submit}>
         <div className="mb-3">
           <label htmlFor="fullName" className="form-label">Nama Lengkap <span className="text-danger">*</span></label>
-          <input type="text" className="form-control" name="fullName" id="fullName" placeholder="Wawan Gunawan ..." autoFocus value={data.fullName} onChange={e => setData('fullName', e.target.value)} />
+          <input type="text" className="form-control" name="fullName" id="fullName" placeholder="Wawan Gunawan ..." autoFocus value={data.fullName} onChange={e => setData('fullName', e.target.value)} required />
         </div>
         <div className="mb-3">
           <label htmlFor="company" className="form-label">Perusahan <span className="text-danger">*</span></label>
-          <input type="text" className="form-control" name="company" id="company" placeholder="PT. ABCD" value={data.company} onChange={e => setData('company', e.target.value)} />
+          <input type="text" className="form-control" name="company" id="company" placeholder="PT. ABCD" value={data.company} onChange={e => setData('company', e.target.value)} required />
         </div>
         <div className="mb-3">
           <label htmlFor="email" className="form-label">Email <span className="text-danger">*</span></label>
-          <input type="email" className="form-control" name="email" id="email" placeholder="email@gmail.com" value={data.email} onChange={e => setData('email', e.target.value)} />
+          <input type="email" className="form-control" name="email" id="email" placeholder="email@gmail.com" value={data.email} onChange={e => setData('email', e.target.value)} required />
         </div>
         <div className="mb-3">
           <label htmlFor="phone" className="form-label">No HP <span className="text-danger">*</span></label>
-          <input type="tel" className="form-control" name="phone" id="phone" placeholder="0896 ..." value={data.phone} onChange={e => setData('phone', e.target.value)} />
+          <input type="tel" className="form-control" name="phone" id="phone" placeholder="0896 ..." value={data.phone} onChange={e => setData('phone', e.target.value)} required />
         </div>
         <div className="mb-3">
           <label htmlFor="image" className="form-label">Foto <span className="text-danger">*</span></label>
-          <input className="form-control" type="file" onChange={e => setData('image', e.target.files[0])} id="image" name="image" accept="image/*" required />
-          {errors.image && <div className="text-danger">{errors.image}</div>}
+          <input className="form-control" type="file" onChange={e => setData('image', e.target.files[0])} id="image" name="image" accept="image/*" capture="environment" required />
+          {errors.image && <div className="text-danger">{errors.image}</div> }
         </div>
         <small className="text-secondary fw-light">* Pastikan semua data benar untuk mempermudah identifikasi saat pengundian hadiah</small>
         <div className="d-grid gap-2 mt-3">
