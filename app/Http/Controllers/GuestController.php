@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Guest;
+use App\Models\Grandprize;
 use Illuminate\Http\Request;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
@@ -17,8 +18,9 @@ class GuestController extends Controller
     public function index()
     {
         return inertia('Spin', [
-            'guests' => Guest::where('is_winner', false)->get()->values(),
-            'winners' => Guest::where('is_winner', true)->get()->values(),
+            'guests' => Guest::where('is_winner', false)->latest()->get(),
+            'winners' => Guest::where('is_winner', true)->latest('updated_at')->get(),
+            'isGrandprizeActive' => (bool) Grandprize::where('key', 'is_grandprize_active')->value('is_grandprize'),
         ]);
     }
 
@@ -40,6 +42,7 @@ class GuestController extends Controller
             'company' => 'required|max:255',
             'email' => 'required|max:255',
             'phone' => 'required|max:255',
+            'is_guest' => 'required|boolean',
             'image' => 'required|image|file|mimes:jpg,jpeg,png|max:20000',
         ]);
 
@@ -67,12 +70,20 @@ class GuestController extends Controller
         return redirect('/thanks');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Guest $guest)
     {
         //
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function showall(Guest $guest)
+    {
+        return inertia('ShowAll', [
+            'guests' => Guest::latest()->get(),
+            'grandprize' => Grandprize::where('key', 'is_grandprize_active')->first(),
+        ]);
     }
 
     /**
@@ -88,14 +99,36 @@ class GuestController extends Controller
      */
     public function update(Request $request, Guest $guest)
     {
-        //
+        $validated = $request->validate([
+            'is_guest' => 'sometimes|boolean',
+            'is_winner' => 'sometimes|boolean',
+        ]);
+
+        $guest->update($validated);
+
+        return back();
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Guest $guest)
+    public function destroy(Request $request, Guest $guest)
     {
-        //
+        if ($request->input('tokenAdmin') !== 'adadeh123') {
+            return back();
+        }
+        
+        // 1. Cek apakah ada file gambar di storage, jika ada hapus filenya
+        if ($guest->image) {
+            // Pastikan Anda menggunakan Storage Facade di bagian atas file: 
+            // use Illuminate\Support\Facades\Storage;
+            Storage::disk('public')->delete($guest->image);
+        }
+
+        // 2. Hapus data dari database
+        $guest->delete();
+
+        // 3. Kembali ke halaman sebelumnya (Inertia akan otomatis memperbarui state)
+        return back();
     }
 }
