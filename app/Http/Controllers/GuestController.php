@@ -9,16 +9,23 @@ use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use App\Exports\GuestExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class GuestController extends Controller
 {
+
+    public function exportExcel()
+    {
+        return Excel::download(new GuestExport, 'daftar_tamu.xlsx');
+    }
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
         return inertia('Spin', [
-            'guests' => Guest::where('is_winner', false)->latest()->get(),
+            'guests' => Guest::where('is_winner', false)->where('status', true)->latest()->get(),
             'winners' => Guest::where('is_winner', true)->latest('updated_at')->get(),
             'isGrandprizeActive' => (bool) Grandprize::where('key', 'is_grandprize_active')->value('is_grandprize'),
         ]);
@@ -43,6 +50,7 @@ class GuestController extends Controller
             'email' => 'required|max:255',
             'phone' => 'required|max:255',
             'is_guest' => 'required|boolean',
+            'is_member' => 'required|boolean',
             'image' => 'required|image|file|mimes:jpg,jpeg,png|max:20000',
         ]);
 
@@ -102,6 +110,7 @@ class GuestController extends Controller
         $validated = $request->validate([
             'is_guest' => 'sometimes|boolean',
             'is_winner' => 'sometimes|boolean',
+            'status' => 'sometimes|boolean',
         ]);
 
         $guest->update($validated);

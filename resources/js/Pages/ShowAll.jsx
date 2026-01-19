@@ -3,9 +3,54 @@ import CheckGuest from './CheckGuest';
 import { Link, router, useForm } from '@inertiajs/react';
 import Swal from 'sweetalert2'; // 1. Import SweetAlert
 import 'bootstrap-icons/font/bootstrap-icons.css';
+import DisableGuest from './DisableGuest';
+import axios from 'axios';
 
 
 export default function ShowAll({ guests, grandprize }) {
+
+  const handleExport = () => {
+      axios({
+          url: 'https://bea-spin.my.id/guest/export', // Sesuaikan URL API
+          method: 'GET',
+          responseType: 'blob', // Penting: memberitahu axios ini adalah file
+      }).then((response) => {
+          // Membuat link download temporary
+          const url = window.URL.createObjectURL(new Blob([response.data]));
+          const link = document.createElement('a');
+          link.href = url;
+          link.setAttribute('download', 'daftar_tamu.xlsx');
+          document.body.appendChild(link);
+          link.click();
+          
+          // Bersihkan link setelah download
+          link.parentNode.removeChild(link);
+      }).catch(error => {
+          console.error('Export failed', error);
+      });
+  };
+
+  // Gunakan di Button
+  // <button onClick={handleExport}>Export ke Excel</button>
+
+  const [manualIds, setManualIds] = useState(() => {
+    return JSON.parse(localStorage.getItem('manualWin')) || [];
+  });
+
+  const toggleManualWinner = (id) => {
+    let updatedIds = [...manualIds];
+    
+    if (updatedIds.includes(id)) {
+        // Jika sudah ada, hapus (Cancel)
+        updatedIds = updatedIds.filter(item => item !== id);
+    } else {
+        // Jika belum ada, tambahkan ke antrean
+        updatedIds.push(id);
+    }
+
+    setManualIds(updatedIds);
+    localStorage.setItem('manualWin', JSON.stringify(updatedIds));  
+  };
   
   const { data, setData, patch, processing } = useForm({
     is_grandprize: grandprize.is_grandprize ?? false,
@@ -104,6 +149,10 @@ export default function ShowAll({ guests, grandprize }) {
             </select>
           </div>
 
+          <div className="col-lg-2">
+            <button className='btn btn-success' onClick={handleExport}>Export ke Excel</button>
+          </div>
+
         </div>
         
         <table className="table table-dark table-striped p-3">
@@ -113,7 +162,7 @@ export default function ShowAll({ guests, grandprize }) {
               <th scope="col">Nama</th>
               <th scope="col">Perusahaan</th>
               <th scope="col">Menang</th>
-              <th scope="col">Peserta</th>
+              <th scope="col">Member</th>
               <th scope="col" className='text-center'>Action</th>
             </tr>
           </thead>
@@ -121,10 +170,10 @@ export default function ShowAll({ guests, grandprize }) {
             {guests.map((guest, index) => (
               <tr>
                 <th scope="row">{ index + 1 }</th>
-                <td>{guest.fullName}</td>
+                <td>{guest.fullName} {guest.is_member ? <span className='text-info'>(Umum)</span> : ''}</td>
                 <td>{guest.company}</td>
                 <CheckGuest key={guest.id} guest={guest}  />
-                <td className='text-center'>
+                <td className='d-flex gap-2 justify-content-center'>
                   <button 
                     onClick={() => confirmDelete(guest.id, guest.fullName)}
                     className="btn btn-danger btn-sm"
@@ -132,6 +181,19 @@ export default function ShowAll({ guests, grandprize }) {
                   >
                     <i className="bi bi-trash"></i> Hapus
                   </button>
+                  <button 
+                    onClick={() => toggleManualWinner(guest.id)}
+                    className={`px-3 py-1 rounded text-sm font-bold ${
+                        manualIds.includes(guest.id) 
+                        ? 'bg-orange-500 text-white' 
+                        : 'bg-gray-200 text-gray-700'
+                    }`}
+                  >
+                      {manualIds.includes(guest.id) 
+                          ? `Antrean #${manualIds.indexOf(guest.id) + 1}` 
+                          : 'Setting'}
+                  </button>
+                  <DisableGuest key={`disable-${guest.id}`} guest={guest} />
                 </td>
               </tr>
             ))}

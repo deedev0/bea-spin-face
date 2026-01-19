@@ -17,5 +17,6 @@ Route::get('/register', function () {
 Route::post('/spin/winner', [SpinController::class, 'winner']);
 
 Route::get('/guest/showall', [GuestController::class, 'showall']);
+Route::get('/guest/export', [GuestController::class, 'exportExcel']);
 Route::resource('/grandprize', GrandprizeController::class)->except(['index', 'create', 'store', 'show', 'destroy',  'edit']);
 Route::resource('/guest', GuestController::class)->except(['edit']);

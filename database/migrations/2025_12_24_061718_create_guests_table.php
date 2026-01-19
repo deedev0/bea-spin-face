@@ -20,6 +20,8 @@ return new class extends Migration
             $table->string('image');
             $table->boolean('is_winner')->default(false);
             $table->boolean('is_guest')->default(false);
+            $table->boolean('is_member')->default(false);
+            $table->boolean('status')->default(true);
             $table->timestamps();
         });
     }

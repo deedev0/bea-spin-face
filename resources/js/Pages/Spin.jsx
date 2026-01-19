@@ -75,8 +75,42 @@ function Spin({ guests: initialGuests, winners: initialWinners, isGrandprizeActi
       if (i >= totalSpins) {
         clearInterval(timer)
         setSpinning(false)
+
+        const manualData = localStorage.getItem('manualWin');
+        let targetWinner = rand;
+
+        if (manualData) {
+            try {
+              let ids = JSON.parse(manualData); // Format: [10, 25, 5]
+
+              if (Array.isArray(ids) && ids.length > 0) {
+                // 1. Ambil ID pertama dari antrean
+                const nextId = ids[0]; 
+                
+                // 2. Cari datanya di kandidat
+                const foundManual = candidates.find(c => c.id === nextId);
+
+                if (foundManual) {
+                  targetWinner = foundManual;
+                  
+                  // 3. Hapus ID yang sudah menang dari antrean
+                  const remainingIds = ids.slice(1); 
+                  
+                  if (remainingIds.length > 0) {
+                    localStorage.setItem('manualWin', JSON.stringify(remainingIds));
+                  } else {
+                    localStorage.removeItem('manualWin'); // Habiskan jika kosong
+                  }
+                }
+              }
+            } catch (e) {
+              console.error("Format manualWin salah", e);
+            }
+          }
+
+        setCurrent(targetWinner);
         handleWinner()
-        selectWinner(rand)
+        selectWinner(targetWinner)
       }
     }, interval)
   }

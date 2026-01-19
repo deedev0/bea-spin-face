@@ -10,6 +10,7 @@ function Register() {
     email: '',
     phone: '',
     is_guest: true,
+    is_member: false,
     image: null,
   });
 
@@ -87,18 +88,26 @@ function Register() {
         <div className="d-flex gap-3 mb-3">
           <div className="form-check">
             <input className="form-check-input" type="radio" name="is_guest" id="radioDefault1" 
-              checked={data.is_guest === true}
-              onChange={() => setData('is_guest', true)} />
+              checked={data.is_guest === true && data.is_member === false}
+              onChange={() => { setData('is_guest', true); setData('is_member', false) }} />
             <label className="form-check-label" htmlFor="radioDefault1">
-              Peserta
+              Member
             </label>
           </div>
           <div className="form-check">
             <input className="form-check-input" type="radio" name="is_guest" id="radioDefault2"
-              checked={data.is_guest === false}
-              onChange={() => setData('is_guest', false)} />
+              checked={data.is_guest === false && data.is_member === false}
+              onChange={() => { setData('is_guest', false); setData('is_member', false) }} />
             <label className="form-check-label" htmlFor="radioDefault2">
               Vendor
+            </label>
+          </div>
+          <div className="form-check">
+            <input className="form-check-input" type="radio" name="is_guest" id="radioDefault3" 
+              checked={data.is_guest === false && data.is_member === true}
+              onChange={() => { setData('is_member', true); setData('is_guest', false) }} />
+            <label className="form-check-label" htmlFor="radioDefault3">
+              Umum
             </label>
           </div>
         </div>
